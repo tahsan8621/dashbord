@@ -29,6 +29,7 @@ $router->get('/products', 'ProductsController@allProducts');
 $router->get('/user-products','ProductsController@index');
 $router->post('/products', 'ProductsController@store');
 $router->get('/products/{id}', 'ProductsController@show');
+$router->get('/products/edit/{id}', 'ProductsController@showEdit');
 $router->post('/products/{id}', 'ProductsController@update');
 $router->delete('/products/{id}', 'ProductsController@destroy');
 $router->get('/search-products/{name}', 'ProductsController@searchProducts');

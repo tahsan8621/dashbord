@@ -49,6 +49,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception) {
+            return response('Unauthorized action');
+        }
         return parent::render($request, $exception);
     }
 }

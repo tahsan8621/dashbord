@@ -19,6 +19,7 @@ class CreatePriceProductTable extends Migration
             $table->integer('starting_price')->nullable();
             $table->integer('buy_now_price');
             $table->integer('reserve_price')->nullable();
+
             $table->unsignedBigInteger('product_id');
             $table->foreign('product_id')
                 ->references('id')

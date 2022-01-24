@@ -4,21 +4,46 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\RegularMessages;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
 class RegularMsgController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::whereHas('messages')->with('price')->get();
+        $user_token = $request->bearerToken();
+
+        $client = new Client();
+        $get_user_info = $client->get(env('USER_API_BASE').'get-seller-id', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_token,
+                'Accept' => 'application/json',
+            ],
+        ])->getBody()->getContents();
+        $user_info=json_decode($get_user_info);
+
+       dd(Product::whereHas('messages')->with('price')->get());
+        //$products = Product::whereHas('messages')->with('price')->get();
+        //$products = Product::where('user_id','=',$user_info->id)->whereHas('messages')->with('price')->get();
+        $products = Product::where('user_id','=',$user_info->id)->get()->whereHas('messages');
 
         return response()->json($products, 200);
     }
 
-    public function show($id)
+    public function show(Request $request,$id)
     {
+        $user_token = $request->bearerToken();
+
+        $client = new Client();
+        $get_user_info = $client->get('http://tanjeeb.hrazy.com/get-seller-id', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_token,
+                'Accept' => 'application/json',
+            ],
+        ])->getBody()->getContents();
+        $user_info=json_decode($get_user_info);
         $all_msg = RegularMessages::where('product_id', '=', $id)
-            ->where('sender_email','=','user@shoppee.com')
+            ->where('sender_email','=',$user_info->email)
             ->orWhere('to_email','=','user@shoppee.com')
             ->orderBy('id')
             ->get();
@@ -27,6 +52,32 @@ class RegularMsgController extends Controller
 
     public function store(Request $request)
     {
+        $user_token = $request->bearerToken();
+
+
+        $client = new Client();
+        if($request->type_of_user==="true"){
+            $get_user_info = $client->get('http://tanjeeb.hrazy.com/get-seller-id', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $user_token,
+                    'Accept' => 'application/json',
+                ],
+            ])->getBody()->getContents();
+            $mail_to_info="sendre@sadf.com";
+        }else{
+            $get_user_info = $client->get(env('USER_API_BASE').'get-seller-id', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $user_token,
+                    'Accept' => 'application/json',
+                ],
+            ])->getBody()->getContents();
+            $mail_to_info="sendreFLP@sadf.com";
+        }
+
+
+        $user_info=json_decode($get_user_info);
+
+
         $msg = new RegularMessages();
 
         if ($request->file('image')) {
@@ -40,8 +91,8 @@ class RegularMsgController extends Controller
             $msg->image = env('API_PATH') . 'images/msg/' . $m_path;
         }
         $msg->product_id = $request->product_id;
-        $msg->sender_email = $request->sender_email;
-        $msg->to_email = $request->to_email;
+        $msg->sender_email = $user_info->email;
+        $msg->to_email = $mail_to_info;
         $msg->status= $request->status;
         $msg->offer_amount= $request->offer_amount;
         $msg->offer_ending_date= $request->offer_ending_date;
