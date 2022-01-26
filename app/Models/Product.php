@@ -57,7 +57,8 @@ class Product extends Model
 
     public function hasMessage()
     {
-        return $this->messages()->where('product_id',2);
+        //return $this->messages();
+        return $this->messages()->where('product_id','=',37);
     }
 
 }

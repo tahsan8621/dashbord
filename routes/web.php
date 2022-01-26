@@ -50,6 +50,7 @@ $router->get('/attribute/names', 'AttributesController@createAttrGet');
 $router->get('/attributes/{id}', 'AttributesController@show');
 
 $router->get('regular/messages', 'RegularMsgController@index');
+$router->get('regular/user-messages/', 'RegularMsgController@userMsgs');
 $router->post('regular/messages', 'RegularMsgController@store');
 $router->get('regular/messages/{id}', 'RegularMsgController@show');
 $router->post('regular/messages/status/{id}', 'RegularMsgController@messageStatusUdate');

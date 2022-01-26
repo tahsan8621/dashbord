@@ -22,7 +22,7 @@ class CreateRegularMessagesTable extends Migration
             $table->string('image')->nullable();
             $table->integer('status')->nullable();
             $table->bigInteger('offer_amount')->nullable();
-            $table->date('offer_ending_date')->nullable();
+            $table->timestamp('offer_ending_date')->nullable();
             $table->foreign('product_id')
                 ->references('id')
                 ->on('products')

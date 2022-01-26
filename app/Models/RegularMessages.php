@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class RegularMessages extends Model
 {
-    protected $fillable = ['product_id',
+    protected $fillable = [
+        'product_id',
+        'seller_id',
         'msg',
-        'sender_email',
-        'to_email',
+        'user_email',
+        'sender_type',
         'status',
         'offer_amount',
         'offer_ending_date'];

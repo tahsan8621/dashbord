@@ -28,7 +28,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'/user', [
+        $user_id = $client->get(env('USER_API_BASE').'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -62,7 +62,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_infos = $client->get(env('USER_API_BASE')."/user-infos/".$product->user_id)->getBody()->getContents();
+        $user_infos = $client->get(env('USER_API_BASE')."user-infos/".$product->user_id)->getBody()->getContents();
 
         $productWithReviews = Product::with('reviews')
             ->where('id', '=', $id)->get();
@@ -86,7 +86,7 @@ class ProductsController extends Controller
         $user_token = $request->bearerToken();
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'/user', [
+        $user_id = $client->get(env('USER_API_BASE').'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -112,7 +112,7 @@ class ProductsController extends Controller
         $user_token = $request->bearerToken();
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'/user', [
+        $user_id = $client->get(env('USER_API_BASE').'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -276,7 +276,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'/user', [
+        $user_id = $client->get(env('USER_API_BASE').'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
