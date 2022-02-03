@@ -30,9 +30,12 @@ $router->get('/user-products','ProductsController@index');
 $router->post('/products', 'ProductsController@store');
 $router->get('/products/{id}', 'ProductsController@show');
 $router->get('/products/edit/{id}', 'ProductsController@showEdit');
+$router->get('/product-reserved-price/{id}','ProductsController@productReservedPriceById');
 $router->post('/products/{id}', 'ProductsController@update');
 $router->delete('/products/{id}', 'ProductsController@destroy');
 $router->get('/search-products/{name}', 'ProductsController@searchProducts');
+$router->get('/bid-product-info/{id}', 'ProductsController@bidProducts');
+
 
 
 $router->get('/categories', 'CategoriesController@index');
@@ -56,5 +59,5 @@ $router->get('regular/messages/{id}', 'RegularMsgController@show');
 $router->post('regular/messages/status/{id}', 'RegularMsgController@messageStatusUdate');
 $router->get('regular/users/{product_id}', 'RegularMsgController@getUsers');
 $router->get('regular/seller/{product_id}/{sender_email}', 'RegularMsgController@getUserMsg');
-
+$router->get('user-offers-list','RegularMsgController@myOffers');
 //

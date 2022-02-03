@@ -6,7 +6,6 @@ use App\Models\Product;
 use App\Models\RegularMessages;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 
 class RegularMsgController extends Controller
 {
@@ -23,7 +22,7 @@ class RegularMsgController extends Controller
         ])->getBody()->getContents();
         $user_info = json_decode($get_user_info);
 
-        $products = Product::whereHas('messages')->where('user_id','=',$user_info->id)
+        $products = Product::whereHas('messages')->where('user_id', '=', $user_info->id)
             ->with('price')->get();
         //$products = Product::whereHas('messages')->with('price')->get();
         //$products = Product::where('user_id','=',$user_info->id)->whereHas('messages')->with('price')->get();
@@ -46,15 +45,13 @@ class RegularMsgController extends Controller
             ],
         ])->getBody()->getContents();
         $user_info = json_decode($get_user_info);
-//        dd($user_info);
-        //dd($request->header('seller_email'));
-        if($request->header('user_type')==="user"){
+        if ($request->header('user_type') === "user") {
 
             $all_msg = RegularMessages::where('product_id', '=', $id)
-               ->where('user_email', '=', $user_info->email)
+                ->where('user_email', '=', $user_info->email)
                 ->orderBy('id')
                 ->get();
-        }else{
+        } else {
             $all_msg = RegularMessages::where('product_id', '=', $id)
                 ->where('user_email', '=', $user_info->email)
                 ->orderBy('id')
@@ -67,6 +64,7 @@ class RegularMsgController extends Controller
     public function store(Request $request)
     {
         $msg = new RegularMessages();
+
 
         $user_token = $request->bearerToken();
         $client = new Client();
@@ -97,19 +95,26 @@ class RegularMsgController extends Controller
         }
         $msg->product_id = $request->product_id;
         $msg->seller_id = $request->seller_id;
-
+        $msg->timer_status = 1;
 
         $msg->status = $request->status;
         $msg->offer_amount = $request->offer_amount;
 
 
-        $s = '06/10/2011 19:00:02';
-        $date = strtotime($s);
-        echo date('d/M/Y H:i:s', $date);
         $msg->offer_ending_date = $request->offer_ending_date;
+        //$msg->offer_ending_date = Carbon::parse($request->offer_ending_date);
 
         $msg->msg = $request->msg;
         $msg->save();
+        if ($request->counter_status == "true") {
+
+            $get_msg = RegularMessages::findOrFail($request->msg_id);
+            $get_msg->status = $request->status;
+            $get_msg->timer_status = 0;
+            $get_msg->save();
+
+        }
+
         return response()->json('successfully send message', 200);
 
     }
@@ -133,7 +138,7 @@ class RegularMsgController extends Controller
 
     public function messageStatusUdate(Request $request, $id)
     {
-//        dd($request->status);
+
         $msg = RegularMessages::findOrFail($id);
         $msg->status = $request->status;
         if ($msg->save()) {
@@ -158,32 +163,62 @@ class RegularMsgController extends Controller
         $user_info = json_decode($get_user_info);
 
         $all_msg = RegularMessages::where('user_email', '=', $user_info->email)->get()->unique('product_id');
-//        dd($all_msg);
 
-        $temp=collect([]);
 
-        foreach ($all_msg as $item){
-            $product=Product::where('id','=',$item->product_id)
+        $temp = collect([]);
+
+        foreach ($all_msg as $item) {
+            $product = Product::where('id', '=', $item->product_id)
                 ->get();
 
-            $message=RegularMessages::where('product_id','=',$item->product_id)->latest()->first();
-//            dd($product);
-            $seller_name=$client->get('http://seller-users.hrazy.com/user-infos/'.$product[0]->user_id)
+            $message = RegularMessages::where('product_id', '=', $item->product_id)->latest()->first();
+
+            $seller_name = $client->get('http://seller-users.hrazy.com/user-infos/' . $product[0]->user_id)
                 ->getBody()->getContents();
             $user_info = json_decode($seller_name);
 
-            $mgsWithProduct=$product->push($message, $user_info );
+            $mgsWithProduct = $product->push($message, $user_info);
             $collection = $temp->push($mgsWithProduct);
 
-            //dd($seller_name);
-            $temp=$collection;
+
+            $temp = $collection;
 
         }
 
-
-
-
-       // return $collection;
         return $collection;
+    }
+
+    public function myOffers(Request $request)
+    {
+        $user_token = $request->bearerToken();
+
+        $client = new Client();
+
+        $get_user_info = $client->get('http://tanjeeb.hrazy.com/user-info', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $user_token,
+                'Accept' => 'application/json',
+            ],
+        ])->getBody()->getContents();
+
+        $user_info = json_decode($get_user_info);
+        $getAllOffers=RegularMessages::where('user_email','=',$user_info->email)
+            ->where('status','=',1)
+            ->get()->unique('product_id');
+
+        $temp = collect();
+
+        foreach ($getAllOffers as $item) {
+            $product = Product::where('id', '=', $item->product_id)
+                ->with('price','messages')
+                ->get();
+           // array_push($temp,$product);
+            $collection = $temp->push($product);
+
+            //$temp = $collection;
+
+        }
+
+        return response()->json($temp);
     }
 }

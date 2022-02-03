@@ -302,4 +302,32 @@ class ProductsController extends Controller
             ->paginate(20);
         return response()->json($products, 200);
     }
+
+    public function productReservedPriceById(Request $request,$id)
+    {
+        if($request->header('token')==='mr-place'){
+            $product=Price::where('product_id','=',$id)->pluck('reserve_price');
+            return response()->json($product);
+        }
+        return response()->json('you are not authorized');
+    }
+
+    public function bidProducts($id)
+    {
+       $product=Product::select('name','image')->where('id','=',$id)->get();
+
+        $newCollections=collect();
+        $price=Product::with('price')->find($id)->price->makeHidden(['reserve_price',"id",'starting_price','buy_now_price','product_id','created_at','updated_at']);
+        $product->push($price);
+        $newCollections->push($product);
+        $test=Product::with('price')->find($id);
+        $test->price->makeHidden(['reserve_price',"id",'starting_price','buy_now_price','product_id','created_at','updated_at']);
+
+//        $test->toJson();
+
+//        return @json_decode(json_encode($test), true);
+
+
+        return $test;
+    }
 }

@@ -16,13 +16,13 @@ class CreateRegularMessagesTable extends Migration
         Schema::create('regular_messages', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('product_id');
-            $table->string('sender_email');
-            $table->string('to_email')->nullable();
+            $table->integer('sender_type')->nullable();
+            $table->string('user_email')->nullable();
             $table->string('msg')->nullable();
             $table->string('image')->nullable();
             $table->integer('status')->nullable();
             $table->bigInteger('offer_amount')->nullable();
-            $table->timestamp('offer_ending_date')->nullable();
+            $table->string('offer_ending_date')->nullable();
             $table->foreign('product_id')
                 ->references('id')
                 ->on('products')
