@@ -29,7 +29,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'user', [
+        $user_id = $client->get(env('USER_API_BASE') . 'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -59,28 +59,17 @@ class ProductsController extends Controller
     public function show($id)
     {
 
-        $product=Product::findOrFail($id);
-        //$product->reviews=Http::get("http://localhost:8000/product/{$id}/review")->json();
+        $product = Product::findOrFail($id);
 
-        dd(Http::get(env('SELLER_USER_API')."user-infos/{$product->user_id}"));
-        $client = new Client();
+        $product->reviews = Http::get("http://localhost:8000/api/product/{$id}/review")->json();
 
-        $seller_infos = $client->get(env('SELLER_USER_API')."user-infos/$product->user_id")->getBody()->getContents();
-
-        $productWithReviews = Product::with('reviews')
-            ->where('id', '=', $id)->get();
-
+        $seller_infos = Http::get(env('SELLER_USER_API') . "user-infos/{$product->user_id}")->json();
         $attrs = Attribute::with('values')
             ->where('product_id', '=', $id)
             ->get();
-        $prices=Price::where('product_id','=',$id)->get(['bidding_time','starting_price','buy_now_price']);
+        $prices = Price::where('product_id', '=', $id)->get(['bidding_time', 'starting_price', 'buy_now_price']);
+        return response()->json(['products' => $product, 'attributes' => $attrs, 'prices' => $prices, 'seller_infos' => $seller_infos], 200);
 
-
-        if (count($productWithReviews)) {
-
-            return response()->json(['products' => $productWithReviews, 'attributes' => $attrs,'prices'=>$prices,'seller_infos'=>json_decode($seller_infos)], 200);
-        }
-        return response()->json('product doesn\'t found', '401');
     }
 
     public function showEdit(Request $request, $id)
@@ -89,7 +78,7 @@ class ProductsController extends Controller
         $user_token = $request->bearerToken();
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'user', [
+        $user_id = $client->get(env('USER_API_BASE') . 'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -115,7 +104,7 @@ class ProductsController extends Controller
         $user_token = $request->bearerToken();
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'user', [
+        $user_id = $client->get(env('USER_API_BASE') . 'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -131,32 +120,32 @@ class ProductsController extends Controller
 
 
             $photo_path->move('images/products', $m_path);
-            $product->image = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image = env('APP_URL') . "/public/images/products/" . $m_path;
         }
         if ($request->file('image_1')) {
             $photo_path = $request->file('image_1');
             $m_path = time() . $photo_path->getClientOriginalName();
 
             $photo_path->move('images/products', $m_path);
-            $product->image_1 = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image_1 = env('APP_URL') . "/public/images/products/" . $m_path;
         }
         if ($request->file('image_2')) {
             $photo_path = $request->file('image_2');
             $m_path = time() . $photo_path->getClientOriginalName();
             $photo_path->move('images/products', $m_path);
-            $product->image_2 = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image_2 = env('APP_URL') . "/public/images/products/" . $m_path;
         }
         if ($request->file('image_3')) {
             $photo_path = $request->file('image_3');
             $m_path = time() . $photo_path->getClientOriginalName();
             $photo_path->move('images/products', $m_path);
-            $product->image_3 = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image_3 = env('APP_URL') . "/public/images/products/" . $m_path;
         }
         if ($request->file('image_4')) {
             $photo_path = $request->file('image_4');
             $m_path = time() . $photo_path->getClientOriginalName();
             $photo_path->move('images/products', $m_path);
-            $product->image_4 = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image_4 = env('APP_URL') . "/public/images/products/" . $m_path;
         }
         $product->name = $request->name;
         $product->sku = $request->sku;
@@ -216,7 +205,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'user', [
+        $user_id = $client->get(env('USER_API_BASE') . 'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -234,32 +223,32 @@ class ProductsController extends Controller
 
 
             $photo_path->move('images/products', $m_path);
-            $product->image = env('APP_URL')."/public/images/products/" . $m_path;
+            $product->image = env('APP_URL') . "/public/images/products/" . $m_path;
 
             if ($request->file('image_1')) {
                 $photo_path = $request->file('image_1');
                 $m_path = time() . $photo_path->getClientOriginalName();
 
                 $photo_path->move('images/products', $m_path);
-                $product->image_1 = env('APP_URL')."/public/images/products/" . $m_path;
+                $product->image_1 = env('APP_URL') . "/public/images/products/" . $m_path;
             }
             if ($request->file('image_2')) {
                 $photo_path = $request->file('image_2');
                 $m_path = time() . $photo_path->getClientOriginalName();
                 $photo_path->move('images/products', $m_path);
-                $product->image_2 = env('APP_URL')."/public/images/products/" . $m_path;
+                $product->image_2 = env('APP_URL') . "/public/images/products/" . $m_path;
             }
             if ($request->file('image_3')) {
                 $photo_path = $request->file('image_3');
                 $m_path = time() . $photo_path->getClientOriginalName();
                 $photo_path->move('images/products', $m_path);
-                $product->image_3 = env('APP_URL')."/public/images/products/" . $m_path;
+                $product->image_3 = env('APP_URL') . "/public/images/products/" . $m_path;
             }
             if ($request->file('image_4')) {
                 $photo_path = $request->file('image_4');
                 $m_path = time() . $photo_path->getClientOriginalName();
                 $photo_path->move('images/products', $m_path);
-                $product->image_4 = env('APP_URL')."/public/images/products/" . $m_path;
+                $product->image_4 = env('APP_URL') . "/public/images/products/" . $m_path;
             }
             $product->name = $request->name;
             $product->sku = $request->sku;
@@ -279,7 +268,7 @@ class ProductsController extends Controller
 
         $client = new Client();
 
-        $user_id = $client->get(env('USER_API_BASE').'user', [
+        $user_id = $client->get(env('USER_API_BASE') . 'user', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -306,10 +295,10 @@ class ProductsController extends Controller
         return response()->json($products, 200);
     }
 
-    public function productReservedPriceById(Request $request,$id)
+    public function productReservedPriceById(Request $request, $id)
     {
-        if($request->header('token')==='mr-place'){
-            $product=Price::where('product_id','=',$id)->pluck('reserve_price');
+        if ($request->header('token') === 'mr-place') {
+            $product = Price::where('product_id', '=', $id)->pluck('reserve_price');
             return response()->json($product);
         }
         return response()->json('you are not authorized');
@@ -317,14 +306,14 @@ class ProductsController extends Controller
 
     public function bidProducts($id)
     {
-       $product=Product::select('name','image')->where('id','=',$id)->get();
+        $product = Product::select('name', 'image')->where('id', '=', $id)->get();
 
-        $newCollections=collect();
-        $price=Product::with('price')->find($id)->price->makeHidden(['reserve_price',"id",'starting_price','buy_now_price','product_id','created_at','updated_at']);
+        $newCollections = collect();
+        $price = Product::with('price')->find($id)->price->makeHidden(['reserve_price', "id", 'starting_price', 'buy_now_price', 'product_id', 'created_at', 'updated_at']);
         $product->push($price);
         $newCollections->push($product);
-        $test=Product::with('price')->find($id);
-        $test->price->makeHidden(['reserve_price',"id",'starting_price','buy_now_price','product_id','created_at','updated_at']);
+        $test = Product::with('price')->find($id);
+        $test->price->makeHidden(['reserve_price', "id", 'starting_price', 'buy_now_price', 'product_id', 'created_at', 'updated_at']);
 
 //        $test->toJson();
 
