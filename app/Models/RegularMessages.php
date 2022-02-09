@@ -9,6 +9,7 @@ class RegularMessages extends Model
     protected $fillable = [
         'product_id',
         'seller_id',
+        'user_id',
         'msg',
         'user_email',
         'sender_type',

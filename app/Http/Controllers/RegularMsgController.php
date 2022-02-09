@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bid;
 use App\Models\Product;
 use App\Models\RegularMessages;
 use GuzzleHttp\Client;
@@ -37,50 +38,55 @@ class RegularMsgController extends Controller
         $user_token = $request->bearerToken();
 
         $client = new Client();
-
-        $get_user_info = $client->get('http://tanjeeb.hrazy.com/get-seller-id', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_token,
-                'Accept' => 'application/json',
-            ],
-        ])->getBody()->getContents();
-        $user_info = json_decode($get_user_info);
-        if ($request->header('user_type') === "user") {
-
-            $all_msg = RegularMessages::where('product_id', '=', $id)
-                ->where('user_email', '=', $user_info->email)
-                ->orderBy('id')
-                ->get();
-        } else {
-            $all_msg = RegularMessages::where('product_id', '=', $id)
-                ->where('user_email', '=', $user_info->email)
-                ->orderBy('id')
-                ->get();
-        }
-
-        return response()->json($all_msg, 200);
-    }
-
-    public function store(Request $request)
-    {
-        $msg = new RegularMessages();
-
-
-        $user_token = $request->bearerToken();
-        $client = new Client();
-        if ($request->type_of_user === "true") {
-            $get_user_info = $client->get('http://tanjeeb.hrazy.com/get-seller-id', [
+        if($request->header('user_type') === "user"){
+            $get_user_info = $client->get('https://tanjeeb.hrazy.com/get-user-id', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $user_token,
                     'Accept' => 'application/json',
                 ],
             ])->getBody()->getContents();
             $user_info = json_decode($get_user_info);
-            $msg->user_email = $user_info->email;
+            $all_msg = RegularMessages::where('product_id', '=', $id)
+                ->where('user_id', '=', $user_info->id)
+                ->orderBy('id')
+                ->get();
+            $seller_id=$request->header('seller_id');
+            $get_user_info =json_decode( $client->get("https://tanjeeb.hrazy.com/get-user-profile/$user_info->id")->getBody()->getContents());
+            $get_seller_info =json_decode( $client->get("https://seller-users.hrazy.com/get-user-profile/$seller_id")->getBody()->getContents());
+        }else{
+            $all_msg = RegularMessages::where('product_id', '=', $id)
+                ->where('user_id', '=',$request->user_id )
+                ->orderBy('id')
+                ->get();
+            $get_user_info =json_decode( $client->get("https://tanjeeb.hrazy.com/get-user-profile/$request->user_id")->getBody()->getContents());
+        }
+
+
+        return response()->json(['messages'=>$all_msg,'user_info'=>$get_user_info,'seller_info'=>$get_seller_info]);
+    }
+
+    public function store(Request $request)
+    {
+
+        $msg = new RegularMessages();
+
+
+        $user_token = $request->bearerToken();
+        $client = new Client();
+        if ($request->type_of_user === "true") {
+            $get_user_info = $client->get('https://tanjeeb.hrazy.com/get-seller-id', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $user_token,
+                    'Accept' => 'application/json',
+                ],
+            ])->getBody()->getContents();
+            $user_info = json_decode($get_user_info);
+            $msg->user_id=$user_info->id;
             $msg->sender_type = 0;
         } else {
+
             $msg->sender_type = 1;
-            $msg->user_email = $request->to_email;
+            $msg->user_id=$request->user_id;
         }
 
         if ($request->file('image')) {
@@ -130,7 +136,7 @@ class RegularMsgController extends Controller
     public function getUserMsg($product_id, $sender_email)
     {
         $all_msg = RegularMessages::where('product_id', '=', $product_id)
-            ->where('user_email', '=', $sender_email)
+            ->where('user_id', '=', $sender_email)
             ->orderBy('id')
             ->get();
         return response()->json($all_msg, 200);
@@ -153,7 +159,7 @@ class RegularMsgController extends Controller
 
         $client = new Client();
 
-        $get_user_info = $client->get('http://tanjeeb.hrazy.com/user-info', [
+        $get_user_info = $client->get('https://tanjeeb.hrazy.com/user-info', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
@@ -162,7 +168,7 @@ class RegularMsgController extends Controller
 
         $user_info = json_decode($get_user_info);
 
-        $all_msg = RegularMessages::where('user_email', '=', $user_info->email)->get()->unique('product_id');
+        $all_msg = RegularMessages::where('user_id', '=', $user_info->id)->get()->unique('product_id');
 
 
         $temp = collect([]);
@@ -185,7 +191,7 @@ class RegularMsgController extends Controller
 
         }
 
-        return $collection;
+        return $temp;
     }
 
     public function myOffers(Request $request)
@@ -194,7 +200,7 @@ class RegularMsgController extends Controller
 
         $client = new Client();
 
-        $get_user_info = $client->get('http://tanjeeb.hrazy.com/user-info', [
+        $get_user_info = $client->get('https://tanjeeb.hrazy.com/user-info', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',

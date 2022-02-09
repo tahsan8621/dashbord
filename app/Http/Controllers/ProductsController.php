@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\Value;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 
 class ProductsController extends Controller
@@ -59,10 +60,12 @@ class ProductsController extends Controller
     {
 
         $product=Product::findOrFail($id);
+        //$product->reviews=Http::get("http://localhost:8000/product/{$id}/review")->json();
 
+        dd(Http::get(env('SELLER_USER_API')."user-infos/{$product->user_id}"));
         $client = new Client();
 
-        $user_infos = $client->get(env('USER_API_BASE')."user-infos/".$product->user_id)->getBody()->getContents();
+        $seller_infos = $client->get(env('SELLER_USER_API')."user-infos/$product->user_id")->getBody()->getContents();
 
         $productWithReviews = Product::with('reviews')
             ->where('id', '=', $id)->get();
@@ -75,7 +78,7 @@ class ProductsController extends Controller
 
         if (count($productWithReviews)) {
 
-            return response()->json(['products' => $productWithReviews, 'attributes' => $attrs,'prices'=>$prices,'seller_infos'=>json_decode($user_infos)], 200);
+            return response()->json(['products' => $productWithReviews, 'attributes' => $attrs,'prices'=>$prices,'seller_infos'=>json_decode($seller_infos)], 200);
         }
         return response()->json('product doesn\'t found', '401');
     }
