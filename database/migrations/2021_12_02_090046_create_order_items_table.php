@@ -18,6 +18,7 @@ class CreateOrderItemsTable extends Migration
             $table->unsignedBigInteger('order_id');
             $table->integer('product_id');
             $table->integer('grand_total');
+            $table->integer('status');
             $table->integer('qnt');
             $table->foreign('order_id')
                 ->references('id')

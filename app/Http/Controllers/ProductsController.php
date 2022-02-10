@@ -60,8 +60,8 @@ class ProductsController extends Controller
     {
 
         $product = Product::findOrFail($id);
-
-        $product->reviews = Http::get("http://localhost:8000/api/product/{$id}/review")->json();
+        //dd(Http::get(env('REVIEWS') . "api/product/{$id}/reviews")->json());
+        $product->reviews = Http::get(env('REVIEWS') . "api/product/{$id}/reviews")->json();
 
         $seller_infos = Http::get(env('SELLER_USER_API') . "user-infos/{$product->user_id}")->json();
         $attrs = Attribute::with('values')
@@ -69,7 +69,6 @@ class ProductsController extends Controller
             ->get();
         $prices = Price::where('product_id', '=', $id)->get(['bidding_time', 'starting_price', 'buy_now_price']);
         return response()->json(['products' => $product, 'attributes' => $attrs, 'prices' => $prices, 'seller_infos' => $seller_infos], 200);
-
     }
 
     public function showEdit(Request $request, $id)

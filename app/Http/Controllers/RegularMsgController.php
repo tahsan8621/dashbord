@@ -13,14 +13,25 @@ class RegularMsgController extends Controller
     public function index(Request $request)
     {
         $user_token = $request->bearerToken();
+        if($request->header('user_type') === "user"){
+            $client = new Client();
+            $get_user_info = $client->get(env('USER_API') . 'get-seller-id', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $user_token,
+                    'Accept' => 'application/json',
+                ],
+            ])->getBody()->getContents();
 
+            $user_info = json_decode($get_user_info);
+        }
         $client = new Client();
-        $get_user_info = $client->get(env('USER_API_BASE') . 'get-seller-id', [
+        $get_user_info = $client->get(env('SELLER_USER_API') . 'get-seller-id', [
             'headers' => [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
             ],
         ])->getBody()->getContents();
+
         $user_info = json_decode($get_user_info);
 
         $products = Product::whereHas('messages')->where('user_id', '=', $user_info->id)
