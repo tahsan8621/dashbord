@@ -7,15 +7,17 @@ use App\Models\Product;
 use App\Models\RegularMessages;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class RegularMsgController extends Controller
 {
     public function index(Request $request)
     {
         $user_token = $request->bearerToken();
+
         if($request->header('user_type') === "user"){
             $client = new Client();
-            $get_user_info = $client->get(env('USER_API') . 'get-seller-id', [
+            $get_user_info = $client->get(env('USER_API') . 'user', [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $user_token,
                     'Accept' => 'application/json',
@@ -23,6 +25,7 @@ class RegularMsgController extends Controller
             ])->getBody()->getContents();
 
             $user_info = json_decode($get_user_info);
+
         }
         $client = new Client();
         $get_user_info = $client->get(env('SELLER_USER_API') . 'get-seller-id', [
@@ -31,7 +34,6 @@ class RegularMsgController extends Controller
                 'Accept' => 'application/json',
             ],
         ])->getBody()->getContents();
-
         $user_info = json_decode($get_user_info);
 
         $products = Product::whereHas('messages')->where('user_id', '=', $user_info->id)
@@ -48,22 +50,24 @@ class RegularMsgController extends Controller
 
         $user_token = $request->bearerToken();
 
+
+
         $client = new Client();
         if($request->header('user_type') === "user"){
-            $get_user_info = $client->get('https://tanjeeb.hrazy.com/get-user-id', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $user_token,
-                    'Accept' => 'application/json',
-                ],
-            ])->getBody()->getContents();
-            $user_info = json_decode($get_user_info);
+            $headers = [
+                'Authorization' => 'Bearer ' . $user_token,
+                'Accept' => 'application/json',
+            ];
+            $url=env('USER_API') ;
+            $url_seller=env('SELLER_USER_API');
+            $get_user_id = Http::withHeaders($headers)->get($url. 'user')->json();
             $all_msg = RegularMessages::where('product_id', '=', $id)
-                ->where('user_id', '=', $user_info->id)
+                ->where('user_id', '=', $get_user_id)
                 ->orderBy('id')
                 ->get();
             $seller_id=$request->header('seller_id');
-            $get_user_info =json_decode( $client->get("https://tanjeeb.hrazy.com/get-user-profile/$user_info->id")->getBody()->getContents());
-            $get_seller_info =json_decode( $client->get("https://seller-users.hrazy.com/get-user-profile/$seller_id")->getBody()->getContents());
+            $get_user_info=Http::get($url."get-user-name-img/$get_user_id")->json();
+            $get_seller_info =Http::get($url_seller."get-user-profile/$seller_id")->json();
         }else{
             $all_msg = RegularMessages::where('product_id', '=', $id)
                 ->where('user_id', '=',$request->user_id )
@@ -80,19 +84,17 @@ class RegularMsgController extends Controller
     {
 
         $msg = new RegularMessages();
-
-
         $user_token = $request->bearerToken();
         $client = new Client();
         if ($request->type_of_user === "true") {
-            $get_user_info = $client->get('https://tanjeeb.hrazy.com/get-seller-id', [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $user_token,
-                    'Accept' => 'application/json',
-                ],
-            ])->getBody()->getContents();
-            $user_info = json_decode($get_user_info);
-            $msg->user_id=$user_info->id;
+            $headers = [
+                'Authorization' => 'Bearer ' . $user_token,
+                'Accept' => 'application/json',
+            ];
+            $url=env('USER_API') ;
+            $url_seller=env('SELLER_USER_API');
+            $get_user_id = Http::withHeaders($headers)->get($url. 'user')->json();
+            $msg->user_id=$get_user_id;
             $msg->sender_type = 0;
         } else {
 

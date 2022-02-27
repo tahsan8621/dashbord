@@ -17,11 +17,13 @@ class CreateProductsTable extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('category_id');
             $table->longText('description');
+            $table->string('brand_name')->nullable();
             $table->longText('sku');
             $table->integer('total_products');
             $table->integer('product_type');
-            $table->integer('total_sales');
+            $table->integer('total_sales')->default(0);
             $table->integer('status')->nullable();
             $table->string('image')->nullable();
             $table->string('image_1')->nullable();

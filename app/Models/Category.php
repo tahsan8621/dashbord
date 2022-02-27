@@ -24,8 +24,22 @@ class Category extends Model
         'description',
         'status'
     ];
-    public function products()
+
+    public function product()
     {
         return $this->belongsTo(Product::class);
+    }
+    public function child() {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+    public function children() {
+        return $this->hasMany(Category::class, 'parent_id')
+            ->with('children');
+    }
+    public function parent() {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+    public function parents() {
+        return $this->belongsTo(Category::class, 'parent_id')->with('parent');
     }
 }

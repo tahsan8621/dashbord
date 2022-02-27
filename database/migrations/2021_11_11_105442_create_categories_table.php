@@ -16,14 +16,11 @@ class CreateCategoriesTable extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('order_no');
+            $table->integer('parent_id')->unsigned()->nullable();
             $table->string('description');
-            $table->boolean('status');
-//            $table->unsignedBigInteger('product_id');
-//            $table->foreign('product_id')
-//                ->references('id')
-//                ->on('products')
-//                ->onDelete('cascade');
+            $table->boolean('request_status');
+            $table->boolean('user_type');
+            $table->bigInteger('user_id')->unsigned();
             $table->timestamps();
         });
     }

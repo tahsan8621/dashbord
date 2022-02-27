@@ -17,6 +17,7 @@ class CreateAttributesTable extends Migration
             $table->id();
             $table->string('name');
             $table->unsignedBigInteger('product_id');
+            $table->unsignedBigInteger('user_id');
             $table->foreign('product_id')
                 ->references('id')
                 ->on('products')

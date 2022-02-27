@@ -31,7 +31,8 @@ class Product extends Model
 
     public function reviews()
     {
-        return $this->belongsToMany(Review::class);
+
+        return ;
     }
     public function brand()
     {
@@ -45,6 +46,10 @@ class Product extends Model
     public function price()
     {
         return $this->hasOne(Price::class);
+    }
+    public function category()
+    {
+        return $this->hasOne(Category::class);
     }
     public function attributes()
     {
