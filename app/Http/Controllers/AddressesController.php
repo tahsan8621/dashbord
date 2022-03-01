@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Address;
 use App\Traits\RequestTrait;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class AddressesController extends Controller
@@ -21,6 +23,9 @@ class AddressesController extends Controller
             return response()->json('unauthorized', 200);
         }
         $userAddress=Address::where('user_id',$user_id->json())->get();
+
+
+
         return response()->json($userAddress,200);
     }
     public function store(Request $request)
