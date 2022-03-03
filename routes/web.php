@@ -73,3 +73,9 @@ $router->get('promotional-offer/{id}','PromotionsController@show');
 $router->post('promotional-offer','PromotionsController@store');
 $router->post('promotional-offer/{id}','PromotionsController@update');
 $router->delete('promotional-offer/{id}','PromotionsController@destroy');
+
+$router->get('flash-offers','FlashesController@index');
+$router->get('flash-offer/{id}','FlashesController@show');
+$router->post('flash-offer','FlashesController@store');
+$router->post('flash-offer/{id}','FlashesController@update');
+$router->delete('flash-offer/{id}','FlashesController@destroy');
