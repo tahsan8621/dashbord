@@ -7,7 +7,7 @@ use App\Models\Category;
 use App\Models\Price;
 use App\Models\Product;
 use App\Models\Value;
-use App\Traits\RequestTrait;
+use App\Traits\GetUserIdTrait;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -19,7 +19,7 @@ use Symfony\Component\Console\Input\Input;
 
 class ProductsController extends Controller
 {
-    use RequestTrait;
+    use GetUserIdTrait;
 
     /**
      * Create a new controller instance.
@@ -50,41 +50,57 @@ class ProductsController extends Controller
 
     public function categorySearch($cat_id)
     {
-        $products = Product::where('category_id', $cat_id)->with('price')->latest()->paginate(20);
+        $min = 60 * 600;
+
+        $products = Cache::remember("$cat_id", $min, function () use ($cat_id) {
+            $products = Product::where('category_id', $cat_id)->with('price')->latest()->paginate(20);
+            foreach ($products as $product) {
+                $product->price->makeHidden('reserve_price');
+                $product->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$product->id}")->json();
+            }
+            return $products;
+        });
         return response($products, 200);
     }
 
     public function allProducts()
     {
-        $min = 60 * 60;
-        $currentPage = request()->get('page',1);
-        $data = Cache::remember('products'  . '_page_' . $currentPage, $min, function(){
-            return Product::with('price')
+        $min = 60 * 600;
+        $currentPage = request()->get('page', 1);
+        $data = Cache::remember('products' . '_page_' . $currentPage, $min, function () {
+            $products = Product::with('price')
                 ->latest()
-                ->paginate(10);
+                ->paginate(20);
+
+            foreach ($products as $product) {
+                $product->price->makeHidden('reserve_price');
+                $product->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$product->id}")->json();
+            }
+            return $products;
         });
         return response($data, 200);
     }
+
     public function show($id)
     {
-        $min = 60 * 60;
-        $product = Cache::remember('products'  , $min, function() use($id){
-            $product= Product::findOrFail($id);
+        $min = 60 * 600;
+
+        $product = Cache::remember("product_$id", $min, function () use ($id) {
+            $product = Product::findOrFail($id);
             $product->reviews = Http::get(env('REVIEWS') . "api/product/{$id}/reviews")->json();
             return $product;
         });
-
-        $seller_infos =Cache::remember('products'  , $min, function() use($id,$product){
+        $seller_infos = Cache::remember("$product->user_id", $min, function () use ($product) {
             Http::get(env('SELLER_USER_API') . "user-infos/{$product->user_id}")->json();
         });
-        $attrs =Cache::remember('attributes'  , $min, function() use($id,$product) {
-           return Attribute::with('values')
+
+        $attrs = Cache::remember("$id", $min, function () use ($id) {
+            Attribute::with('values')
                 ->where('product_id', '=', $id)
                 ->get();
         });
-        $prices =Cache::remember('prices'  , $min, function() use($id,$product) {
-           return Price::where('product_id', '=', $id)->get(['bidding_time', 'starting_price', 'buy_now_price']);
-        });
+        $prices = Price::where('product_id', '=', $id)->get(['bidding_time', 'starting_price', 'buy_now_price']);
+
 
         return response()->json(['products' => $product, 'attributes' => $attrs, 'prices' => $prices, 'seller_infos' => $seller_infos], 200);
     }
@@ -98,19 +114,15 @@ class ProductsController extends Controller
         if ($user_info->status() == 401) {
             return response()->json('unauthorized user', 401);
         }
-
         $user_id = $user_info->json();
-
         $products = Product::findOrFail($id);
         $attrs = Attribute::with('values')
             ->where('product_id', '=', $id)
             ->get();
         $prices = Price::where('product_id', '=', $id)->get();
-
         if ($products->user_id == $user_id) {
             return response()->json(['products' => $products, 'attributes' => $attrs, 'prices' => $prices], 200);
         }
-
         return response()->json('product doesn\'t found', '401');
     }
 
@@ -333,7 +345,9 @@ class ProductsController extends Controller
                 $q->Where('name', 'like', "%{$value}%");
             }
         })->with('price')->paginate(20);
-
+        foreach ($products as $item) {
+            $item->price->makeHidden('reserve_price');
+        }
         return response()->json($products, 200);
     }
 
@@ -348,10 +362,14 @@ class ProductsController extends Controller
 
     public function bidProducts($id)
     {
-        $product = Product::select('name', 'image')->where('id', '=', $id)->get();
-
+        $product = Product::select('name', 'image')
+            ->where('id', '=', $id)
+            ->get();
         $newCollections = collect();
-        $price = Product::with('price')->find($id)->price->makeHidden(['reserve_price', "id", 'starting_price', 'buy_now_price', 'product_id', 'created_at', 'updated_at']);
+        $price = Product::with('price')
+            ->find($id)
+            ->price
+            ->makeHidden(['reserve_price', "id", 'starting_price', 'buy_now_price', 'product_id', 'created_at', 'updated_at']);
         $product->push($price);
         $newCollections->push($product);
         $test = Product::with('price')->find($id);

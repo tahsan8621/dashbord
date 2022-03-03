@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Address;
-use App\Traits\RequestTrait;
+use App\Traits\GetUserIdTrait;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Validator;
 
 class AddressesController extends Controller
 {
-    use RequestTrait;
+    use GetUserIdTrait;
 
     public function userAddresses(Request $request)
     {

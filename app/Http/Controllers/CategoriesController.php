@@ -7,12 +7,12 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
-use App\Traits\RequestTrait;
+use App\Traits\GetUserIdTrait;
 
 
 class CategoriesController extends Controller
 {
-    use RequestTrait;
+    use GetUserIdTrait;
 
     /**
      * Create a new controller instance.

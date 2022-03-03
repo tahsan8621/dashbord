@@ -67,4 +67,9 @@ $router->get('user-offers-list', 'RegularMsgController@myOffers');
 
 $router->get('user-addresses','AddressesController@userAddresses');
 $router->post('address','AddressesController@store');
-//
+
+$router->get('promotional-offers','PromotionsController@index');
+$router->get('promotional-offer/{id}','PromotionsController@show');
+$router->post('promotional-offer','PromotionsController@store');
+$router->post('promotional-offer/{id}','PromotionsController@update');
+$router->delete('promotional-offer/{id}','PromotionsController@destroy');
