@@ -66,4 +66,18 @@ class Product extends Model
         return $this->messages()->where('product_id','=',37);
     }
 
+    public function promotions()
+    {
+        return $this->belongsToMany(Promotion::class);
+    }
+    public function bundles()
+    {
+        return $this->belongsToMany(Bundle::class);
+    }
+    public function flashes()
+    {
+        return $this->belongsToMany(Flash::class);
+    }
+
+
 }

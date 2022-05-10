@@ -11,4 +11,8 @@ class Flash extends Model
         'name',
         'discount'
     ];
+    public function products()
+    {
+        return $this->belongsToMany(Product::class,'flash_product');
+    }
 }

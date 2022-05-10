@@ -10,10 +10,6 @@ trait GetUserIdTrait{
             'Authorization' => 'Bearer ' . $user_token,
             'Accept' => 'application/json',
         ];
-        $user_info=Http::withHeaders($headers)->get($url);
-        if ($user_info->status() == 401) {
-            return response()->json('unauthorized', 200);
-        }
-        return $user_info;
+        return Http::withHeaders($headers)->get($url);
     }
 }

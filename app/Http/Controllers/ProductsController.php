@@ -10,11 +10,11 @@ use App\Models\Value;
 use App\Traits\GetUserIdTrait;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
+
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Http;
-use Symfony\Component\Console\Input\Input;
+
 
 
 class ProductsController extends Controller
@@ -38,7 +38,7 @@ class ProductsController extends Controller
         $url = env('SELLER_USER_API') . 'user';
         $user_id = $this->getUserId($user_token, $url);
 
-        if ($user_id->status() == 401) {
+        if ($user_id->status() == 400) {
             return response()->json('unauthorized', 200);
         }
 
@@ -50,35 +50,36 @@ class ProductsController extends Controller
 
     public function categorySearch($cat_id)
     {
-        $min = 60 * 600;
-
-        $products = Cache::remember("$cat_id", $min, function () use ($cat_id) {
+//        $min = 60 * 600;
+//
+//        $products = Cache::remember("$cat_id", $min, function () use ($cat_id) {
             $products = Product::where('category_id', $cat_id)->with('price')->latest()->paginate(20);
             foreach ($products as $product) {
                 $product->price->makeHidden('reserve_price');
                 $product->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$product->id}")->json();
             }
-            return $products;
-        });
+//            return $products;
+//        });
         return response($products, 200);
     }
 
     public function allProducts()
     {
-        $min = 60 * 600;
-        $currentPage = request()->get('page', 1);
-        $data = Cache::remember('products' . '_page_' . $currentPage, $min, function () {
+//        $min = 0;
+//        $currentPage = request()->get('page', 1);
+//        $data = Cache::remember('products' . '_page_' . $currentPage, $min, function () {
             $products = Product::with('price')
                 ->latest()
                 ->paginate(20);
 
             foreach ($products as $product) {
-                $product->price->makeHidden('reserve_price');
+//                $product->price->makeHidden('reserve_price');
                 $product->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$product->id}")->json();
             }
-            return $products;
-        });
-        return response($data, 200);
+//            return $products;
+//        });
+
+        return response($products, 200);
     }
 
     public function show($id)
@@ -111,7 +112,7 @@ class ProductsController extends Controller
         $user_token = $request->bearerToken();
         $url = env('SELLER_USER_API') . 'user';
         $user_info = $this->getUserId($user_token, $url);
-        if ($user_info->status() == 401) {
+        if ($user_info->status() == 400) {
             return response()->json('unauthorized user', 401);
         }
         $user_id = $user_info->json();
@@ -123,21 +124,19 @@ class ProductsController extends Controller
         if ($products->user_id == $user_id) {
             return response()->json(['products' => $products, 'attributes' => $attrs, 'prices' => $prices], 200);
         }
-        return response()->json('product doesn\'t found', '401');
+        return response()->json('product doesn\'t found', 401);
     }
 
     public function store(Request $request)
     {
+
         $user_token = $request->bearerToken();
-        $client = new Client();
-
-        $user_id = $client->get(env('SELLER_USER_API') . 'user', [
-            'headers' => [
-                'Authorization' => 'Bearer ' . $user_token,
-                'Accept' => 'application/json',
-            ],
-        ])->getBody()->getContents();
-
+        $url = env('SELLER_USER_API') . 'user';
+        $user_info = $this->getUserId($user_token, $url);
+        $user_id=$user_info->json();
+        if ($user_info->status() == 400) {
+            return response()->json('unauthorized user', 401);
+        }
         $product = new Product();
         if ($request->file('image')) {
             $photo_path = $request->file('image');
@@ -208,6 +207,7 @@ class ProductsController extends Controller
                 $attr = new Attribute();
                 $attr->name = $att_array[$limit]->attribute_name;
                 $attr->product_id = $product->id;
+                $attr->user_id= $user_id;
 
                 $attr->save();
                 $count_values = count($att_array[$limit]->attribute_value);

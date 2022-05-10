@@ -46,6 +46,7 @@ class AddressesController extends Controller
             return response()->json($validator->errors());
         }
         $user_token = $request->bearerToken();
+
         $url = env('USER_API') . 'user';
         $user_id = $this->getUserId($user_token, $url);
 

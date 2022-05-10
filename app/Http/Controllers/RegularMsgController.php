@@ -85,19 +85,20 @@ class RegularMsgController extends Controller
 
         $msg = new RegularMessages();
         $user_token = $request->bearerToken();
-        $client = new Client();
-        if ($request->type_of_user === "true") {
+
+        if ($request->type_of_user === true) {
             $headers = [
                 'Authorization' => 'Bearer ' . $user_token,
                 'Accept' => 'application/json',
             ];
             $url=env('USER_API') ;
             $url_seller=env('SELLER_USER_API');
+
             $get_user_id = Http::withHeaders($headers)->get($url. 'user')->json();
+
             $msg->user_id=$get_user_id;
             $msg->sender_type = 0;
         } else {
-
             $msg->sender_type = 1;
             $msg->user_id=$request->user_id;
         }

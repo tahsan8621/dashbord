@@ -13,4 +13,11 @@ class Promotion extends Model
         'starting_time',
         'end_time',
     ];
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class,'product_promotion');
+    }
+
+
 }
