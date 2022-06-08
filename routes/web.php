@@ -13,6 +13,11 @@
 |
 */
 //$router->group(['prefix' => 'api/v1/'], function () use ($router) {
+//Landing Page API Start
+
+$router->get('filter-with-discount/{cat}','FiltersController@filterByDiscount');
+//Landing Page API End
+
 
 $router->get('/orders', 'OrdersController@index');
 $router->post('/orders', 'OrdersController@store');
@@ -67,6 +72,8 @@ $router->get('user-offers-list', 'RegularMsgController@myOffers');
 
 $router->get('user-addresses','AddressesController@userAddresses');
 $router->post('address','AddressesController@store');
+$router->post('address-update/{id}','AddressesController@update');
+$router->delete('address-delete/{id}','AddressesController@destroy');
 
 $router->get('promotional-offers','PromotionsController@index');
 $router->get('promotional-offer/{id}','PromotionsController@show');
@@ -81,7 +88,7 @@ $router->delete('promotional-products-remove/{product_id}/{promotion_id}','Promo
 $router->get('flash-offers','FlashesController@index');
 $router->get('flash-offers-all','FlashesController@getAllFlashes');
 $router->get('flash-all-offers','FlashesController@allFlashes');
-$router->get('flash-hot-offers','FlashesController@hotDeals');
+$router->get('best-deals','FlashesController@hotDeals');
 $router->get('flash-all-offers-test','FlashesController@allFlashesTest');
 $router->get('flash-offer/{id}','FlashesController@show');
 $router->post('flash-offer','FlashesController@store');
@@ -102,3 +109,5 @@ $router->get('bundle-products/{id}','BundlesController@getProductHasPromotion');
 $router->get('bundle-products-add','BundlesController@getProductForPromotion');
 $router->delete('bundle-products-remove/{product_id}/{bundle_id}','BundlesController@detachProduct');
 
+
+$router->get('best-seller','BestSellersController@index');

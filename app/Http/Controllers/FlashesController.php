@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Flash;
 use App\Models\Product;
 use App\Traits\GetUserIdTrait;
@@ -42,6 +43,7 @@ class FlashesController extends Controller
             $item->price->makeHidden('reserve_price');
             $item->flashes->makeHidden('pivot');
             $item->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$item->id}")->json();
+            $item->category=Category::where("id",$item->category_id)->pluck("name");
             $item->flashes[0]->created_at= $item->flashes[0]->created_at->addDays(1);
         }
 
