@@ -4,11 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Flash;
+use App\Models\OrderItem;
 use App\Models\Product;
 use App\Traits\GetUserIdTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+
+use Carbon\Carbon;
 
 class FlashesController extends Controller
 {
@@ -24,35 +27,69 @@ class FlashesController extends Controller
             $item->price->makeHidden('reserve_price');
             $item->flashes->makeHidden('pivot');
             $item->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$item->id}")->json();
-            $item->flashes[0]->created_at= $item->flashes[0]->created_at->addDays(1);
+            $item->flashes[0]->created_at = $item->flashes[0]->created_at->addDays(1);
         }
 
         return response()->json($flash_products, 200);
     }
 
+    public function getFlashMaxSale()
+    {
+
+        $today_sale_avg = OrderItem::whereDate('created_at', Carbon::today())
+            ->where('items_status', true)
+            ->avg('qnt');
+        $flash_products = Product::whereHas('flashes')
+            ->join('order_items', 'order_items.product_id', '=', 'products.id')
+            ->where('qnt', '>=', $today_sale_avg)
+            ->pluck('product_id');
+        
+        $products = Product::whereIn('id', $flash_products)->with(['price', 'flashes'])->get();
+//        dd($products);
+//        $sales_avg = Product::all()->avg('total_sales');
+//
+//        $flash_products = Product::whereHas('flashes')
+//            ->with(['price', 'flashes'])
+//            ->where('total_sales', '>', $sales_avg)
+//            ->inRandomOrder()
+//            ->limit(6)
+//            ->get();
+
+
+        foreach ($products as $key => $item) {
+            $item->price->makeHidden('reserve_price');
+            $item->flashes->makeHidden('pivot');
+            $item->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$item->id}")->json();
+            $item->flashes[0]->created_at = $item->flashes[0]->created_at->addDays(1);
+        }
+
+        return response()->json($products, 200);
+    }
+
     public function hotDeals()
     {
-        $flashesAvg=Flash::all()->avg('discount');
+        $flashesAvg = Flash::all()->avg('discount');
 
-        $products= Product::whereHas('flashes')->with(['price', 'flashes'])->inRandomOrder()->get();
+        $products = Product::whereHas('flashes')->with(['price', 'flashes'])->inRandomOrder()->get();
 
-        $getMaxFlashProducts = $products->filter(function($product) use ($flashesAvg){
+        $getMaxFlashProducts = $products->filter(function ($product) use ($flashesAvg) {
             return $product->flashes->avg('discount') >= $flashesAvg;
         })->values();
         foreach ($getMaxFlashProducts as $item) {
             $item->price->makeHidden('reserve_price');
             $item->flashes->makeHidden('pivot');
             $item->reviews = Http::get(env('REVIEWS') . "api/product/reviews/{$item->id}")->json();
-            $item->category=Category::where("id",$item->category_id)->pluck("name");
-            $item->flashes[0]->created_at= $item->flashes[0]->created_at->addDays(1);
+            $item->category = Category::where("id", $item->category_id)->pluck("name");
+            $item->flashes[0]->created_at = $item->flashes[0]->created_at->addDays(1);
         }
 
         return response()->json($getMaxFlashProducts, 200);
     }
+
     public function getAllFlashes()
     {
 
-        $products= Product::whereHas( 'flashes')->with(['price', 'flashes'])->inRandomOrder()->paginate(20);
+        $products = Product::whereHas('flashes')->with(['price', 'flashes'])->inRandomOrder()->paginate(20);
 
         foreach ($products as $item) {
             $item->price->makeHidden('reserve_price');
@@ -73,7 +110,7 @@ class FlashesController extends Controller
             $item->price->makeHidden('reserve_price');
             $item->flashes->makeHidden('pivot');
 
-           $item->flashes[0]->created_at= $item->flashes[0]->created_at->addDays(1);
+            $item->flashes[0]->created_at = $item->flashes[0]->created_at->addDays(1);
         }
 
         return response()->json($flash_products, 200);

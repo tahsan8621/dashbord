@@ -89,6 +89,7 @@ $router->get('flash-offers','FlashesController@index');
 $router->get('flash-offers-all','FlashesController@getAllFlashes');
 $router->get('flash-all-offers','FlashesController@allFlashes');
 $router->get('best-deals','FlashesController@hotDeals');
+$router->get('get-flash-max-sale','FlashesController@getFlashMaxSale');
 $router->get('flash-all-offers-test','FlashesController@allFlashesTest');
 $router->get('flash-offer/{id}','FlashesController@show');
 $router->post('flash-offer','FlashesController@store');
