@@ -19,8 +19,8 @@ class AddressesController extends Controller
         $url = env('USER_API') . 'user';
         $user_id = $this->getUserId($user_token, $url);
 
-        if ($user_id->status() == 401) {
-            return response()->json('unauthorized', 200);
+        if (isset($user_id->original)) {
+            return response()->json('unauthorized', 401);
         }
         $userAddress=Address::where('user_id',$user_id->json())->get();
 
@@ -50,8 +50,8 @@ class AddressesController extends Controller
         $url = env('USER_API') . 'user';
         $user_id = $this->getUserId($user_token, $url);
 
-        if ($user_id->status() == 401) {
-            return response()->json('unauthorized', 200);
+        if (isset($user_id->original)) {
+            return response()->json('unauthorized', 401);
         }
         $address=new Address();
 

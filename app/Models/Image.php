@@ -18,9 +18,7 @@ class Image extends Model
      *
      * @var array
      */
-    protected $fillable = [
-        'path'
-    ];
+    protected $guarded=[];
     public function product()
     {
         return $this->belongsTo(Product::class);

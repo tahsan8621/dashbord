@@ -12,10 +12,11 @@
 | and give it the Closure to call when that URI is requested.
 |
 */
+
 //$router->group(['prefix' => 'api/v1/'], function () use ($router) {
 //Landing Page API Start
 
-$router->get('filter-with-discount/{cat}','FiltersController@filterByDiscount');
+$router->get('filter-with-discount/{cat}', 'FiltersController@filterByDiscount');
 //Landing Page API End
 
 
@@ -70,45 +71,69 @@ $router->get('regular/users/{product_id}', 'RegularMsgController@getUsers');
 $router->get('regular/seller/{product_id}/{sender_email}', 'RegularMsgController@getUserMsg');
 $router->get('user-offers-list', 'RegularMsgController@myOffers');
 
-$router->get('user-addresses','AddressesController@userAddresses');
-$router->post('address','AddressesController@store');
-$router->post('address-update/{id}','AddressesController@update');
-$router->delete('address-delete/{id}','AddressesController@destroy');
+$router->get('user-addresses', 'AddressesController@userAddresses');
+$router->post('address', 'AddressesController@store');
+$router->post('address-update/{id}', 'AddressesController@update');
+$router->delete('address-delete/{id}', 'AddressesController@destroy');
 
-$router->get('promotional-offers','PromotionsController@index');
-$router->get('promotional-offer/{id}','PromotionsController@show');
-$router->post('promotional-offer','PromotionsController@store');
-$router->post('promotional-offer/{id}','PromotionsController@update');
-$router->delete('promotional-offer/{id}','PromotionsController@destroy');
-$router->post('promotional-product-add','PromotionsController@addProduct');
-$router->get('promotional-products/{id}','PromotionsController@getProductHasPromotion');
-$router->get('promotional-products-add','PromotionsController@getProductForPromotion');
-$router->delete('promotional-products-remove/{product_id}/{promotion_id}','PromotionsController@detachProduct');
+$router->get('promotional-offers', 'PromotionsController@index');
+$router->get('promotional-offer/{id}', 'PromotionsController@show');
+$router->post('promotional-offer', 'PromotionsController@store');
+$router->post('promotional-offer/{id}', 'PromotionsController@update');
+$router->delete('promotional-offer/{id}', 'PromotionsController@destroy');
+$router->post('promotional-product-add', 'PromotionsController@addProduct');
+$router->get('promotional-products/{id}', 'PromotionsController@getProductHasPromotion');
+$router->get('promotional-products-add', 'PromotionsController@getProductForPromotion');
+$router->delete('promotional-products-remove/{product_id}/{promotion_id}', 'PromotionsController@detachProduct');
 
-$router->get('flash-offers','FlashesController@index');
-$router->get('flash-offers-all','FlashesController@getAllFlashes');
-$router->get('flash-all-offers','FlashesController@allFlashes');
-$router->get('best-deals','FlashesController@hotDeals');
-$router->get('get-flash-max-sale','FlashesController@getFlashMaxSale');
-$router->get('flash-all-offers-test','FlashesController@allFlashesTest');
-$router->get('flash-offer/{id}','FlashesController@show');
-$router->post('flash-offer','FlashesController@store');
-$router->post('flash-offer/{id}','FlashesController@update');
-$router->delete('flash-offer/{id}','FlashesController@destroy');
-$router->post('flash-product-add','FlashesController@addProduct');
-$router->get('flash-products/{id}','FlashesController@getProductHasPromotion');
-$router->get('flash-products-add','FlashesController@getProductForPromotion');
-$router->delete('flash-products-remove/{product_id}/{flash_id}','FlashesController@detachProduct');
+$router->get('flash-offers', 'FlashesController@index');
+$router->get('flash-offers-all', 'FlashesController@getAllFlashes');
+$router->get('flash-all-offers', 'FlashesController@allFlashes');
+$router->get('best-deals', 'FlashesController@hotDeals');
+$router->get('get-flash-max-sale', 'FlashesController@getFlashMaxSale');
+$router->get('flash-all-offers-test', 'FlashesController@allFlashesTest');
+$router->get('flash-offer/{id}', 'FlashesController@show');
+$router->post('flash-offer', 'FlashesController@store');
+$router->post('flash-offer/{id}', 'FlashesController@update');
+$router->delete('flash-offer/{id}', 'FlashesController@destroy');
+$router->post('flash-product-add', 'FlashesController@addProduct');
+$router->get('flash-products/{id}', 'FlashesController@getProductHasPromotion');
+$router->get('flash-products-add', 'FlashesController@getProductForPromotion');
+$router->delete('flash-products-remove/{product_id}/{flash_id}', 'FlashesController@detachProduct');
 
-$router->get('bundle-offers','BundlesController@index');
-$router->get('bundle-offer/{id}','BundlesController@show');
-$router->post('bundle-offer','BundlesController@store');
-$router->post('bundle-offer/{id}','BundlesController@update');
-$router->delete('bundle-offer/{id}','BundlesController@destroy');
-$router->post('bundle-product-add','BundlesController@addProduct');
-$router->get('bundle-products/{id}','BundlesController@getProductHasPromotion');
-$router->get('bundle-products-add','BundlesController@getProductForPromotion');
-$router->delete('bundle-products-remove/{product_id}/{bundle_id}','BundlesController@detachProduct');
+$router->get('bundle-offers', 'BundlesController@index');
+$router->get('bundle-offer/{id}', 'BundlesController@show');
+$router->post('bundle-offer', 'BundlesController@store');
+$router->post('bundle-offer/{id}', 'BundlesController@update');
+$router->delete('bundle-offer/{id}', 'BundlesController@destroy');
+$router->post('bundle-product-add', 'BundlesController@addProduct');
+$router->get('bundle-products/{id}', 'BundlesController@getProductHasPromotion');
+$router->get('bundle-products-add', 'BundlesController@getProductForPromotion');
+$router->delete('bundle-products-remove/{product_id}/{bundle_id}', 'BundlesController@detachProduct');
 
 
-$router->get('best-seller','BestSellersController@index');
+$router->get('best-seller', 'BestSellersController@index');
+
+$router->get('fixed-offer-products', 'FiltersController@fixedOffer');
+$router->get('negotiable-products', 'FiltersController@negotiable');
+$router->get('auction-products', 'FiltersController@auction');
+
+//shop
+$router->get('/shops', 'ShopsController@index');
+$router->get('/shops-all', 'ShopsController@getAllShops');
+$router->get('/shop/{id}', 'ShopsController@show');
+$router->post('/shop', 'ShopsController@store');
+$router->post('/shop/{id}', 'ShopsController@update');
+$router->delete('/shop/{id}', 'ShopsController@distroy');
+
+//slider
+$router->get('/banners', 'BannersController@index');
+$router->post('/banner', 'BannersController@store');
+$router->delete('/banner/{id}', 'BannersController@distroy');
+$router->post('/banner/{id}', 'BannersController@update');
+
+//social-network
+$router->get('/social-network', 'SocailNetworksController@index');
+$router->post('/social-network', 'SocailNetworksController@store');
+$router->delete('/social-network/{id}', 'SocailNetworksController@distroy');
+$router->post('/social-network/{id}', 'SocailNetworksController@update');
