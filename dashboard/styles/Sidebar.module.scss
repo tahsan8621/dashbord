@@ -1,0 +1,31 @@
+.aside {
+  width: 330px;
+  padding: 0 16px;
+  box-shadow: 2px -3px 4px rgba(0, 0, 0, 0.25);
+}
+
+.logoWrap {
+  height: 106px;
+}
+
+.logo {
+  width: 178px;
+}
+
+.mainMenu {
+  .item {
+    cursor: pointer;
+    height: 27px;
+    display: flex;
+    &:hover {
+      background: antiquewhite;
+    }
+  }
+}
+
+.hasIcon {
+  svg {
+    width: 11px;
+    padding: 0 14px;
+  }
+}
